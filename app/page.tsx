@@ -1,18 +1,10 @@
-export default function Home() {
-  return (
-    <main
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--shopee-padding-sm)",
-        padding: "var(--shopee-padding-xl)",
-      }}
-    >
-      <h1 className="t-page-title-xl">PMO Task Tracker</h1>
-      <p className="t-body">
-        Skeleton deploy — Project Overview, Track by Person, and Add New Task
-        land in later build phases.
-      </p>
-    </main>
-  );
+import { getProjectOverviewData } from "@/lib/queries";
+import { ProjectOverview } from "@/app/components/ProjectOverview";
+
+// Live dashboard data, not a static page — never cache/prerender this.
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const projects = await getProjectOverviewData();
+  return <ProjectOverview projects={projects} />;
 }
