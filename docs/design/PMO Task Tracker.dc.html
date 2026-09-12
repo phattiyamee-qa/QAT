@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="./shopee-tokens.css" />
+  <style>
+    body { margin:0; background:#F6F6F6; font-family:'Roboto','PingFang SC',-apple-system,Helvetica,Arial,sans-serif; color:#333; }
+    * { box-sizing:border-box; }
+    a { color:#EE4D2D; text-decoration:none; }
+    a:hover { color:#F26644; text-decoration:underline; }
+    input, select, button { font-family:inherit; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh;min-width:1280px;display:flex;flex-direction:column;background:var(--shopee-color-bg-layout)">
+
+  <header style="height:56px;flex:none;display:flex;align-items:center;gap:24px;padding:0 24px;background:var(--shopee-color-white);border-bottom:1px solid var(--shopee-color-border);position:sticky;top:0;z-index:20">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="./assets/shopee-logo.svg" alt="" width="24" height="24" />
+      <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">PMO Task Tracker</span>
+    </div>
+    <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary);padding:2px 8px;border:1px solid var(--shopee-color-border);border-radius:4px;white-space:nowrap;flex:none">Sheet is source of truth &middot; read-only sync</span>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <sc-if value="{{ showRole }}" hint-placeholder-val="{{ true }}">
+      <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Role</span>
+      <select value="{{ role }}" onChange="{{ onRole }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)">
+        <option value="QA">QA</option>
+        <option value="PM">PM (coming soon)</option>
+        <option value="Manager">Manager (coming soon)</option>
+      </select>
+      </sc-if>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding-left:16px;border-left:1px solid var(--shopee-color-border)">
+      <span style="width:28px;height:28px;border-radius:50%;background:var(--shopee-chart-3);color:var(--shopee-color-white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500">NR</span>
+      <span style="font-size:14px;line-height:20px;color:var(--shopee-color-text)">Nadia Rahman</span>
+    </div>
+  </header>
+
+  <div style="flex:1;display:flex;align-items:stretch;min-height:0">
+    <nav style="width:222px;flex:none;background:var(--shopee-color-white);border-right:1px solid var(--shopee-color-border);padding:16px 0;display:flex;flex-direction:column;gap:4px">
+      <span style="padding:0 24px 8px;font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">QA Workspace</span>
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="3">
+        <button type="button" onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 24px;border:none;border-left:3px solid {{ n.bar }};background:{{ n.bg }};color:{{ n.fg }};font-size:14px;font-weight:{{ n.weight }};text-align:left;cursor:pointer" style-hover="background:var(--shopee-color-hover)">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="{{ n.d }}"></path></svg>
+          {{ n.label }}
+        </button>
+      </sc-for>
+      <div style="margin-top:16px;padding:0 24px 8px;border-top:1px solid var(--shopee-color-border-secondary);padding-top:16px">
+        <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-quaternary)">PM and Manager views will slot in here.</span>
+      </div>
+    </nav>
+
+    <main style="flex:1;min-width:0;padding:24px;display:flex;flex-direction:column;gap:16px">
+
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:flex-end;gap:16px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:20px;line-height:28px;font-weight:500;color:var(--shopee-color-text)">Project Overview</div>
+            <div style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary);margin-top:4px">{{ overviewSub }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;background:var(--shopee-color-white);border:1px solid var(--shopee-color-border);border-radius:4px">
+            <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Reference date</span>
+            <input type="date" value="{{ refDate }}" onChange="{{ onRefDate }}" style="height:24px;border:none;outline:none;font-size:14px;color:var(--shopee-color-text);background:transparent" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="7">
+            <button type="button" onClick="{{ s.onClick }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px;background:{{ s.bg }};border:1px solid {{ s.border }};border-radius:8px;box-shadow:var(--shopee-shadow-sm);cursor:pointer;text-align:left" style-hover="box-shadow:var(--shopee-shadow-md)">
+              <span style="display:flex;align-items:center;gap:4px">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ s.dot }};border:{{ s.dotBorder }}"></span>
+                <span style="font-size:20px;line-height:28px;font-weight:500;color:var(--shopee-color-text)">{{ s.count }}</span>
+              </span>
+              <span style="font-size:12px;line-height:16px;color:{{ s.labelColor }}">{{ s.label }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;min-width:280px;flex:0 1 320px">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="var(--shopee-color-text-tertiary)" aria-hidden="true"><path d="M6.994.994a6 6 0 0 1 4.584 9.87l3.28 3.28a.5.5 0 0 1-.639.764l-.069-.058-3.278-3.278A6 6 0 1 1 6.994.993m0 1a5 5 0 1 0 0 10 5 5 0 0 0 0-10"></path></svg>
+              <input type="text" value="{{ search }}" onChange="{{ onSearch }}" placeholder="Search project title or assignee" style="flex:1;height:24px;border:none;outline:none;font-size:14px;color:var(--shopee-color-text);background:transparent" />
+            </div>
+            <div style="flex:1"></div>
+            <button type="button" onClick="{{ onToggleProgress }}" style="display:flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:1px solid {{ progressBorder }};border-radius:4px;background:{{ progressBg }};color:{{ progressFg }};font-size:14px;cursor:pointer">
+              <span style="width:28px;height:16px;border-radius:8px;background:{{ progressTrack }};position:relative;flex:none">
+                <span style="position:absolute;top:2px;left:{{ progressKnob }};width:12px;height:12px;border-radius:50%;background:var(--shopee-color-white)"></span>
+              </span>
+              In progress only
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ catChips }}" as="c" hint-placeholder-count="9">
+              <button type="button" onClick="{{ c.onClick }}" style="height:28px;padding:0 12px;border:1px solid {{ c.border }};border-radius:4px;background:{{ c.bg }};color:{{ c.fg }};font-size:12px;line-height:16px;white-space:nowrap;cursor:pointer" style-hover="border-color:var(--shopee-color-primary)">{{ c.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="3">
+              <section style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);overflow:hidden">
+                <button type="button" onClick="{{ cat.onToggle }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:none;background:var(--shopee-color-bg-module);cursor:pointer;text-align:left" style-hover="background:var(--shopee-color-hover)">
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="var(--shopee-color-text-secondary)" aria-hidden="true"><path d="{{ cat.chevron }}"></path></svg>
+                  <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">{{ cat.name }}</span>
+                  <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">{{ cat.countLabel }}</span>
+                  <div style="flex:1"></div>
+                  <span style="display:flex;height:8px;width:220px;border-radius:4px;overflow:hidden;background:var(--shopee-color-fill-tertiary)">
+                    <sc-for list="{{ cat.dist }}" as="seg" hint-placeholder-count="3">
+                      <span title="{{ seg.title }}" style="height:8px;width:{{ seg.w }}%;background:{{ seg.color }}"></span>
+                    </sc-for>
+                  </span>
+                </button>
+
+                <sc-if value="{{ cat.open }}" hint-placeholder-val="{{ true }}">
+                  <div>
+                    <div style="display:grid;grid-template-columns:minmax(0,1fr) 56px 132px 148px 148px 196px 32px;gap:12px;padding:8px 16px;background:var(--shopee-color-white);border-bottom:1px solid var(--shopee-color-border-secondary);font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">
+                      <span>Project</span><span>Priority</span><span>QA</span><span>UAT</span><span>Live</span><span>Status</span><span></span>
+                    </div>
+                    <sc-for list="{{ cat.rows }}" as="row" hint-placeholder-count="4">
+                      <div style="border-bottom:1px solid var(--shopee-color-border-secondary)">
+                        <div style="display:grid;grid-template-columns:minmax(0,1fr) 56px 132px 148px 148px 196px 32px;gap:12px;padding:10px 16px;align-items:center" style-hover="background:var(--shopee-color-fill-quaternary)">
+                          <div style="min-width:0">
+                            <div style="font-size:14px;line-height:20px;font-weight:500;color:var(--shopee-color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.title }}</div>
+                            <div style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.remark }}</div>
+                          </div>
+                          <span style="display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 6px;border-radius:4px;background:{{ row.prioBg }};color:{{ row.prioFg }};font-size:12px;line-height:16px;font-weight:500;justify-self:start">{{ row.priority }}</span>
+                          <div style="display:flex;align-items:center;gap:4px">
+                            <sc-for list="{{ row.avatars }}" as="a" hint-placeholder-count="2">
+                              <span title="{{ a.name }}" style="width:24px;height:24px;border-radius:50%;background:{{ a.color }};color:var(--shopee-color-white);display:flex;align-items:center;justify-content:center;font-size:12px;line-height:16px;font-weight:500">{{ a.initials }}</span>
+                            </sc-for>
+                          </div>
+                          <span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;background:{{ row.uatBg }};color:{{ row.uatFg }};font-size:12px;line-height:16px;justify-self:start">{{ row.uatLabel }}</span>
+                          <span style="display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;background:{{ row.liveBg }};color:{{ row.liveFg }};font-size:12px;line-height:16px;justify-self:start">{{ row.liveLabel }}</span>
+                          <span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:4px;background:{{ row.statusBg }};border:{{ row.statusBorder }};font-size:12px;line-height:16px;color:var(--shopee-color-text);justify-self:start">
+                            <span style="width:8px;height:8px;border-radius:50%;flex:none;background:{{ row.statusDot }};border:{{ row.statusDotBorder }}"></span>
+                            {{ row.statusLabel }}
+                          </span>
+                          <button type="button" title="Edit task" onClick="{{ row.onEdit }}" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid {{ row.editBorder }};border-radius:4px;background:{{ row.editBg }};color:{{ row.editFg }};cursor:pointer" style-hover="border-color:var(--shopee-color-primary);color:var(--shopee-color-primary)">
+                            <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="m13.77 4.535-2.121-2.12-2.122 2.12 2.122 2.122zM10.94 7.364l-2.12-2.122-6.109 6.108-.212 2.334 2.333-.212zm1.415-5.657 2.12 2.121a1 1 0 0 1 0 1.414L5.542 14.18a1 1 0 0 1-.617.289l-2.333.212a1 1 0 0 1-1.087-1.087l.212-2.333a1 1 0 0 1 .289-.617l8.936-8.936a1 1 0 0 1 1.415 0"></path></svg>
+                          </button>
+                        </div>
+                        <sc-if value="{{ row.isEditing }}" hint-placeholder-val="{{ false }}">
+                          <div style="padding:0 16px 16px">
+                            <dc-import name="EditRow" e="{{ draft }}" hint-size="100%,360px"></dc-import>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </section>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);padding:48px;display:flex;flex-direction:column;align-items:center;gap:8px">
+            <span style="width:48px;height:48px;border-radius:50%;background:var(--shopee-color-bg-module);display:flex;align-items:center;justify-content:center;color:var(--shopee-color-text-quaternary)">
+              <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M6.994.994a6 6 0 0 1 4.584 9.87l3.28 3.28a.5.5 0 0 1-.639.764l-.069-.058-3.278-3.278A6 6 0 1 1 6.994.993m0 1a5 5 0 1 0 0 10 5 5 0 0 0 0-10"></path></svg>
+            </span>
+            <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">No projects match these filters</span>
+            <span style="font-size:14px;line-height:20px;color:var(--shopee-color-text-secondary)">Clear the search, the category chips, or the status card to see the full list.</span>
+            <button type="button" onClick="{{ onClearFilters }}" style="margin-top:8px;height:32px;padding:0 16px;border:1px solid var(--shopee-color-primary);border-radius:4px;background:var(--shopee-color-white);color:var(--shopee-color-primary);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--shopee-color-primary-bg)">Reset filters</button>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isPerson }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:20px;line-height:28px;font-weight:500;color:var(--shopee-color-text)">Track by Person</div>
+            <div style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary);margin-top:4px">{{ personSub }}</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Person</span>
+            <select value="{{ person }}" onChange="{{ onPerson }}" style="height:32px;min-width:180px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)">
+              <sc-for list="{{ peopleNames }}" as="p" hint-placeholder-count="4">
+                <option value="{{ p.name }}">{{ p.name }}</option>
+              </sc-for>
+            </select>
+          </label>
+        </div>
+
+        <div style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);padding:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <span style="font-size:14px;line-height:20px;font-weight:500;color:var(--shopee-color-text)">Reference date</span>
+          <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Every percentage on this page is measured against it.</span>
+          <div style="flex:1"></div>
+          <div style="display:flex;align-items:center;gap:0">
+            <button type="button" title="Previous day" onClick="{{ onPrevDay }}" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--shopee-color-border);border-radius:4px 0 0 4px;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);cursor:pointer" style-hover="background:var(--shopee-color-hover)">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="m6.81 8 3.97-3.97a.75.75 0 1 0-1.06-1.06l-4.5 4.5a.75.75 0 0 0 0 1.06l4.5 4.5a.75.75 0 1 0 1.06-1.06z"></path></svg>
+            </button>
+            <input type="date" value="{{ refDate }}" onChange="{{ onRefDate }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-left:none;border-right:none;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+            <button type="button" title="Next day" onClick="{{ onNextDay }}" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--shopee-color-border);border-radius:0 4px 4px 0;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);cursor:pointer" style-hover="background:var(--shopee-color-hover)">
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="m9.19 8-3.97 3.97a.75.75 0 1 0 1.06 1.06l4.5-4.5a.75.75 0 0 0 0-1.06l-4.5-4.5a.75.75 0 0 0-1.06 1.06z"></path></svg>
+            </button>
+          </div>
+          <button type="button" onClick="{{ onToday }}" style="height:32px;padding:0 16px;border:1px solid var(--shopee-color-primary);border-radius:4px;background:var(--shopee-color-white);color:var(--shopee-color-primary);font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--shopee-color-primary-bg)">Today</button>
+        </div>
+
+        <sc-for list="{{ gantt }}" as="sec" hint-placeholder-count="2">
+          <section style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--shopee-color-border-secondary)">
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ sec.color }}"></span>
+              <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">{{ sec.title }}</span>
+              <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">{{ sec.countLabel }}</span>
+              <div style="flex:1"></div>
+              <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">{{ windowLabel }}</span>
+              <div style="display:flex;align-items:center;gap:0">
+                <button type="button" title="Previous week" onClick="{{ onPrevWeek }}" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--shopee-color-border);border-radius:4px 0 0 4px;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);cursor:pointer" style-hover="background:var(--shopee-color-hover)">
+                  <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="m6.81 8 3.97-3.97a.75.75 0 1 0-1.06-1.06l-4.5 4.5a.75.75 0 0 0 0 1.06l4.5 4.5a.75.75 0 1 0 1.06-1.06z"></path></svg>
+                </button>
+                <button type="button" title="Next week" onClick="{{ onNextWeek }}" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--shopee-color-border);border-left:none;border-radius:0 4px 4px 0;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);cursor:pointer" style-hover="background:var(--shopee-color-hover)">
+                  <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="m9.19 8-3.97 3.97a.75.75 0 1 0 1.06 1.06l4.5-4.5a.75.75 0 0 0 0-1.06l-4.5-4.5a.75.75 0 0 0-1.06 1.06z"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:280px minmax(0,1fr);border-bottom:1px solid var(--shopee-color-border-secondary);background:var(--shopee-color-bg-module)">
+              <div style="padding:6px 16px;font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Task</div>
+              <div>
+                <div style="display:grid;grid-template-columns:{{ weekCols }}">
+                  <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="3">
+                    <div style="padding:6px 8px;font-size:12px;line-height:16px;font-weight:500;color:var(--shopee-color-text-secondary);border-left:1px solid var(--shopee-color-border)">{{ w.label }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:grid;grid-template-columns:{{ dayCols }}">
+                  <sc-for list="{{ days }}" as="d" hint-placeholder-count="21">
+                    <div style="padding:2px 0 4px;text-align:center;border-left:1px solid var(--shopee-color-border-secondary);background:{{ d.bg }}">
+                      <div style="font-size:10px;line-height:12px;color:{{ d.fg }}">{{ d.dow }}</div>
+                      <div style="font-size:11px;line-height:14px;font-weight:{{ d.weight }};color:{{ d.fg }}">{{ d.num }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <sc-if value="{{ sec.hasRows }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <sc-for list="{{ sec.rows }}" as="t" hint-placeholder-count="3">
+                  <div style="border-bottom:1px solid var(--shopee-color-border-secondary)">
+                    <div style="display:grid;grid-template-columns:280px minmax(0,1fr);align-items:center;min-height:40px">
+                      <div style="display:flex;align-items:center;gap:8px;padding:6px 16px;min-width:0">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;height:18px;padding:0 5px;border-radius:4px;background:{{ t.prioBg }};color:{{ t.prioFg }};font-size:11px;line-height:14px;font-weight:500;flex:none">{{ t.priority }}</span>
+                        <span style="font-size:13px;line-height:18px;color:var(--shopee-color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.title }}</span>
+                        <div style="flex:1"></div>
+                        <button type="button" title="Edit task" onClick="{{ t.onEdit }}" style="width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid {{ t.editBorder }};border-radius:4px;background:{{ t.editBg }};color:{{ t.editFg }};cursor:pointer" style-hover="border-color:var(--shopee-color-primary);color:var(--shopee-color-primary)">
+                          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="m13.77 4.535-2.121-2.12-2.122 2.12 2.122 2.122zM10.94 7.364l-2.12-2.122-6.109 6.108-.212 2.334 2.333-.212zm1.415-5.657 2.12 2.121a1 1 0 0 1 0 1.414L5.542 14.18a1 1 0 0 1-.617.289l-2.333.212a1 1 0 0 1-1.087-1.087l.212-2.333a1 1 0 0 1 .289-.617l8.936-8.936a1 1 0 0 1 1.415 0"></path></svg>
+                        </button>
+                      </div>
+                      <div style="position:relative;height:28px;background:{{ stripeBg }}">
+                        <sc-if value="{{ t.inWindow }}" hint-placeholder-val="{{ true }}">
+                          <div style="position:absolute;top:3px;height:22px;border-radius:4px;left:{{ t.left }}%;width:{{ t.width }}%;background:{{ sec.tint }};overflow:hidden">
+                            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:14px;font-weight:500;color:var(--shopee-color-text)">{{ t.pctLabel }}</div>
+                            <div style="position:absolute;top:0;bottom:0;left:0;width:{{ t.pct }}%;background:{{ sec.color }};overflow:hidden">
+                              <div style="position:absolute;top:0;bottom:0;left:0;width:{{ t.invPct }}%;display:flex;align-items:center;justify-content:center;font-size:11px;line-height:14px;font-weight:500;color:var(--shopee-color-white)">{{ t.pctLabel }}</div>
+                            </div>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ t.outWindow }}" hint-placeholder-val="{{ false }}">
+                          <div style="position:absolute;top:6px;left:8px;font-size:11px;line-height:16px;color:var(--shopee-color-text-quaternary)">{{ t.rangeLabel }} &middot; outside this range</div>
+                        </sc-if>
+                      </div>
+                    </div>
+                    <sc-if value="{{ t.isEditing }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:0 16px 16px">
+                        <dc-import name="EditRow" e="{{ draft }}" hint-size="100%,360px"></dc-import>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ sec.empty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:32px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                <span style="font-size:14px;line-height:20px;font-weight:500;color:var(--shopee-color-text)">{{ sec.emptyTitle }}</span>
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">{{ sec.emptyBody }}</span>
+              </div>
+            </sc-if>
+          </section>
+        </sc-for>
+
+        <section style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);overflow:hidden">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--shopee-color-border-secondary)">
+            <span style="width:8px;height:8px;border-radius:50%;background:transparent;border:1px dashed var(--shopee-color-text-tertiary)"></span>
+            <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">No timeline yet</span>
+            <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">{{ noTimelineCount }}</span>
+          </div>
+          <sc-if value="{{ hasNoTimeline }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <sc-for list="{{ noTimeline }}" as="t" hint-placeholder-count="2">
+                <div style="border-bottom:1px solid var(--shopee-color-border-secondary)">
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px 16px">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;height:18px;padding:0 5px;border-radius:4px;background:{{ t.prioBg }};color:{{ t.prioFg }};font-size:11px;line-height:14px;font-weight:500">{{ t.priority }}</span>
+                    <span style="font-size:13px;line-height:18px;color:var(--shopee-color-text)">{{ t.title }}</span>
+                    <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">{{ t.category }}</span>
+                    <div style="flex:1"></div>
+                    <button type="button" onClick="{{ t.onEdit }}" style="height:28px;padding:0 12px;border:1px dashed var(--shopee-color-primary);border-radius:4px;background:var(--shopee-color-white);color:var(--shopee-color-primary);font-size:12px;line-height:16px;font-weight:500;cursor:pointer" style-hover="background:var(--shopee-color-primary-bg)">Set timeline</button>
+                  </div>
+                  <sc-if value="{{ t.isEditing }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:0 16px 16px">
+                      <dc-import name="EditRow" e="{{ draft }}" hint-size="100%,360px"></dc-import>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noNoTimeline }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:32px;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <span style="font-size:14px;line-height:20px;font-weight:500;color:var(--shopee-color-text)">Every task has dates</span>
+              <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Tasks with no UAT or Live dates would be listed here.</span>
+            </div>
+          </sc-if>
+        </section>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px">
+          <sc-for list="{{ closedLists }}" as="sec" hint-placeholder-count="2">
+            <section style="background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);overflow:hidden">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--shopee-color-border-secondary)">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ sec.color }}"></span>
+                <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">{{ sec.title }}</span>
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">{{ sec.countLabel }}</span>
+              </div>
+              <sc-if value="{{ sec.hasRows }}" hint-placeholder-val="{{ true }}">
+                <div>
+                  <sc-for list="{{ sec.rows }}" as="t" hint-placeholder-count="2">
+                    <div style="border-bottom:1px solid var(--shopee-color-border-secondary)">
+                      <div style="display:flex;align-items:center;gap:8px;padding:10px 16px">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;height:18px;padding:0 5px;border-radius:4px;background:{{ t.prioBg }};color:{{ t.prioFg }};font-size:11px;line-height:14px;font-weight:500">{{ t.priority }}</span>
+                        <span style="font-size:13px;line-height:18px;color:{{ sec.textColor }};text-decoration:{{ sec.deco }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.title }}</span>
+                        <div style="flex:1"></div>
+                        <span style="font-size:11px;line-height:14px;color:var(--shopee-color-text-tertiary)">{{ t.rangeLabel }}</span>
+                        <button type="button" title="Edit task" onClick="{{ t.onEdit }}" style="width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid {{ t.editBorder }};border-radius:4px;background:{{ t.editBg }};color:{{ t.editFg }};cursor:pointer" style-hover="border-color:var(--shopee-color-primary);color:var(--shopee-color-primary)">
+                          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="m13.77 4.535-2.121-2.12-2.122 2.12 2.122 2.122zM10.94 7.364l-2.12-2.122-6.109 6.108-.212 2.334 2.333-.212zm1.415-5.657 2.12 2.121a1 1 0 0 1 0 1.414L5.542 14.18a1 1 0 0 1-.617.289l-2.333.212a1 1 0 0 1-1.087-1.087l.212-2.333a1 1 0 0 1 .289-.617l8.936-8.936a1 1 0 0 1 1.415 0"></path></svg>
+                        </button>
+                      </div>
+                      <sc-if value="{{ t.isEditing }}" hint-placeholder-val="{{ false }}">
+                        <div style="padding:0 16px 16px">
+                          <dc-import name="EditRow" e="{{ draft }}" hint-size="100%,360px"></dc-import>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ sec.empty }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:32px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <span style="font-size:14px;line-height:20px;font-weight:500;color:var(--shopee-color-text)">{{ sec.emptyTitle }}</span>
+                  <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">{{ sec.emptyBody }}</span>
+                </div>
+              </sc-if>
+            </section>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isAdd }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:20px;line-height:28px;font-weight:500;color:var(--shopee-color-text)">Add New Task</div>
+          <div style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary);margin-top:4px">Tasks added here live in the app only. The Google Sheet is never written back to.</div>
+        </div>
+
+        <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width:860px;background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:grid;grid-template-columns:minmax(0,2fr) 120px;gap:12px">
+              <label style="display:grid;gap:4px">
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Task name</span>
+                <input type="text" value="{{ add.name }}" onChange="{{ add.onName }}" placeholder="e.g. Wallet top-up limit revamp" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);outline:none" />
+              </label>
+              <label style="display:grid;gap:4px">
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Priority</span>
+                <select value="{{ add.priority }}" onChange="{{ add.onPriority }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)">
+                  <option value="P0">P0</option>
+                  <option value="P1">P1</option>
+                  <option value="P2">P2</option>
+                  <option value="P3">P3</option>
+                </select>
+              </label>
+            </div>
+
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:12px;align-items:start">
+              <div style="display:grid;gap:4px">
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Category</span>
+                <input type="text" value="{{ add.category }}" onChange="{{ add.onCategory }}" onKeyDown="{{ add.onCategoryKey }}" placeholder="Pick a sheet tab or type a new one" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);outline:none" />
+                <sc-if value="{{ add.showCats }}" hint-placeholder-val="{{ false }}">
+                  <div style="border:1px solid var(--shopee-color-border);border-radius:4px;box-shadow:var(--shopee-shadow-dropdown);overflow:hidden">
+                    <sc-for list="{{ add.catOptions }}" as="o" hint-placeholder-count="3">
+                      <button type="button" onClick="{{ o.onPick }}" style="display:flex;width:100%;align-items:center;gap:8px;height:32px;padding:0 8px;border:none;background:var(--shopee-color-white);font-size:14px;text-align:left;cursor:pointer;color:{{ o.color }}" style-hover="background:var(--shopee-color-hover)">
+                        <sc-if value="{{ o.isCreate }}" hint-placeholder-val="{{ false }}">
+                          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M7.982 1a.5.5 0 0 1 .5.5L8.48 7.497l6.019.001a.5.5 0 0 1 0 1l-6.019-.001V14.5a.5.5 0 0 1-1 0V8.497L1.5 8.498a.5.5 0 0 1 0-1l5.981-.001V1.5a.5.5 0 0 1 .5-.5"></path></svg>
+                        </sc-if>
+                        {{ o.label }}
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <label style="display:grid;gap:4px">
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Phase</span>
+                <select value="{{ add.phase }}" onChange="{{ add.onPhase }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)">
+                  <option value="UAT">UAT</option>
+                  <option value="Live">Live</option>
+                </select>
+              </label>
+            </div>
+
+            <div style="display:grid;gap:4px">
+              <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Assignees</span>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:32px;padding:4px 8px;border:1px solid var(--shopee-color-border);border-radius:4px">
+                <sc-for list="{{ add.assignees }}" as="a" hint-placeholder-count="2">
+                  <span style="display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 4px 0 6px;border-radius:4px;background:var(--shopee-color-bg-module);border:1px solid var(--shopee-color-border);font-size:12px;line-height:16px;color:var(--shopee-color-text)">
+                    <span style="width:8px;height:8px;border-radius:50%;background:{{ a.color }}"></span>
+                    {{ a.name }}
+                    <button type="button" onClick="{{ a.onRemove }}" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:none;background:transparent;color:var(--shopee-color-text-tertiary);cursor:pointer;padding:0" style-hover="color:var(--shopee-color-text)">
+                      <svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M13.646 2.146a.5.5 0 1 1 .707.708L9.208 8l5.46 5.46a.5.5 0 0 1-.707.707L8.5 8.707l-5.46 5.46a.5.5 0 0 1-.707-.707L7.793 8 2.646 2.854a.5.5 0 1 1 .708-.708L8.5 7.293z"></path></svg>
+                    </button>
+                  </span>
+                </sc-for>
+                <input type="text" value="{{ add.query }}" onChange="{{ add.onQuery }}" onKeyDown="{{ add.onQueryKey }}" placeholder="Type to search, or type a new name and press Enter" style="flex:1 1 220px;min-width:160px;height:24px;border:none;outline:none;font-size:14px;color:var(--shopee-color-text);background:transparent" />
+              </div>
+              <sc-if value="{{ add.showPeople }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1px solid var(--shopee-color-border);border-radius:4px;box-shadow:var(--shopee-shadow-dropdown);overflow:hidden">
+                  <sc-for list="{{ add.peopleOptions }}" as="o" hint-placeholder-count="3">
+                    <button type="button" onClick="{{ o.onPick }}" style="display:flex;width:100%;align-items:center;gap:8px;height:32px;padding:0 8px;border:none;background:var(--shopee-color-white);font-size:14px;text-align:left;cursor:pointer;color:{{ o.color }}" style-hover="background:var(--shopee-color-hover)">
+                      <sc-if value="{{ o.isCreate }}" hint-placeholder-val="{{ false }}">
+                        <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M7.982 1a.5.5 0 0 1 .5.5L8.48 7.497l6.019.001a.5.5 0 0 1 0 1l-6.019-.001V14.5a.5.5 0 0 1-1 0V8.497L1.5 8.498a.5.5 0 0 1 0-1l5.981-.001V1.5a.5.5 0 0 1 .5-.5"></path></svg>
+                      </sc-if>
+                      {{ o.label }}
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px;background:var(--shopee-color-bg-module);border-radius:4px">
+              <label style="display:grid;gap:4px">
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">{{ add.startLabel }}</span>
+                <input type="date" value="{{ add.start }}" onChange="{{ add.onStart }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+              </label>
+              <label style="display:grid;gap:4px">
+                <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">{{ add.dueLabel }}</span>
+                <input type="date" value="{{ add.due }}" onChange="{{ add.onDue }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+              </label>
+              <span style="grid-column:1 / -1;font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Both dates are optional. Leave them blank to save the task as &ldquo;no timeline yet&rdquo;.</span>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:16px">
+              <button type="button" onClick="{{ add.onSave }}" style="height:40px;padding:0 24px;border:none;border-radius:4px;background:{{ add.saveBg }};color:var(--shopee-color-white);font-size:14px;font-weight:500;cursor:{{ add.saveCursor }}" style-hover="background:var(--shopee-color-primary-hover)">Save task</button>
+              <button type="button" onClick="{{ add.onReset }}" style="height:40px;padding:0 16px;border:1px solid var(--shopee-color-border);border-radius:4px;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);font-size:14px;cursor:pointer" style-hover="background:var(--shopee-color-hover)">Reset</button>
+              <span style="font-size:12px;line-height:16px;color:var(--shopee-color-error)">{{ add.error }}</span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showAdded }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width:640px;background:var(--shopee-color-white);border-radius:8px;box-shadow:var(--shopee-shadow-sm);padding:32px;display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+            <span style="display:flex;align-items:center;gap:8px;color:var(--shopee-color-success)">
+              <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1m3.146 4.929L7.097 9.978 4.854 7.734a.5.5 0 1 0-.708.707l2.598 2.598a.5.5 0 0 0 .707 0l4.403-4.403a.5.5 0 0 0-.708-.707"></path></svg>
+              <span style="font-size:16px;line-height:24px;font-weight:500;color:var(--shopee-color-text)">Task saved</span>
+            </span>
+            <div>
+              <div style="font-size:14px;line-height:20px;font-weight:500;color:var(--shopee-color-text)">{{ added.title }}</div>
+              <div style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary);margin-top:4px">{{ added.summary }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;width:100%">
+              <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Jump to a tracker</span>
+              <sc-for list="{{ added.links }}" as="l" hint-placeholder-count="2">
+                <button type="button" onClick="{{ l.onClick }}" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border:1px solid var(--shopee-color-border);border-radius:4px;background:var(--shopee-color-white);font-size:14px;color:var(--shopee-color-text);cursor:pointer;text-align:left" style-hover="border-color:var(--shopee-color-primary)">
+                  <span style="width:24px;height:24px;border-radius:50%;background:{{ l.color }};color:var(--shopee-color-white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500">{{ l.initials }}</span>
+                  {{ l.label }}
+                </button>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:16px">
+              <button type="button" onClick="{{ onAddAnother }}" style="height:32px;padding:0 16px;border:none;border-radius:4px;background:var(--shopee-color-primary);color:var(--shopee-color-white);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer" style-hover="background:var(--shopee-color-primary-hover)">Add another task</button>
+              <button type="button" onClick="{{ onGoOverview }}" style="height:32px;padding:0 16px;border:1px solid var(--shopee-color-border);border-radius:4px;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);font-size:14px;white-space:nowrap;cursor:pointer" style-hover="background:var(--shopee-color-hover)">Back to Project Overview</button>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRoleSwitcher&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;startInProgressOnly&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;ganttWeeks&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;2&quot;,&quot;3&quot;,&quot;4&quot;],&quot;default&quot;:&quot;3&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+const CATS = ['Payment','Platform','Credit','Insurance','AS','MS','Foms','DP/LS'];
+const CHART = ['#367FE3','#FB734B','#5D7092','#23AAAB','#58B7F1','#945FB9','#F6BD16','#76C99E','#C39167','#DE5991'];
+const PEOPLE = ['Nadia Rahman','Wira Kusuma','Farah Idris','Budi Santoso','Mei Ling Tan','Arun Pillai','Siti Aminah','Hafiz Omar'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const TODAY = '2026-09-11';
+
+const PRIO = {
+  P0: { bg: 'var(--shopee-color-error-bg)', fg: '#C7302C' },
+  P1: { bg: 'var(--shopee-color-warning-bg-strong)', fg: '#9A5A00' },
+  P2: { bg: 'var(--shopee-color-info-bg)', fg: '#1B57AB' },
+  P3: { bg: 'var(--shopee-color-fill-tertiary)', fg: 'var(--shopee-color-text-secondary)' },
+};
+
+const STATUS = {
+  uat:     { label: 'Not started / In UAT', dot: 'var(--shopee-color-white)', dotBorder: '1px solid var(--shopee-color-text-quaternary)', bg: 'var(--shopee-color-white)', border: '1px solid var(--shopee-color-border)', seg: '#D8D8D8' },
+  waiting: { label: 'UAT done, waiting Live', dot: 'var(--shopee-color-warning-icon)', dotBorder: 'none', bg: 'var(--shopee-tag-warning-bg)', border: '1px solid var(--shopee-tag-warning-bg)', seg: 'var(--shopee-color-warning-icon)' },
+  live:    { label: 'Live in progress', dot: 'var(--shopee-color-success)', dotBorder: 'none', bg: 'var(--shopee-tag-success-bg)', border: '1px solid var(--shopee-tag-success-bg)', seg: 'var(--shopee-color-success)' },
+  done:    { label: 'Done', dot: 'var(--shopee-color-text-tertiary)', dotBorder: 'none', bg: 'var(--shopee-tag-expired-bg)', border: '1px solid transparent', seg: 'var(--shopee-color-text-tertiary)' },
+  none:    { label: 'No timeline', dot: 'transparent', dotBorder: '1px dashed var(--shopee-color-text-tertiary)', bg: 'var(--shopee-color-white)', border: '1px dashed var(--shopee-color-border-upload)', seg: 'var(--shopee-color-info-border-strong)' },
+  skipped: { label: 'Skipped', dot: 'var(--shopee-color-error)', dotBorder: 'none', bg: 'var(--shopee-color-error-bg)', border: '1px solid var(--shopee-color-error-bg)', seg: 'var(--shopee-color-error)' },
+};
+const STAT_KEYS = ['all','uat','waiting','live','done','none','skipped'];
+const STAT_LABELS = { all: 'All projects', uat: 'Not started / In UAT', waiting: 'UAT done, waiting Live', live: 'Live now', done: 'Done', none: 'No timeline', skipped: 'Skipped' };
+
+function D(s) { return new Date(s + 'T00:00:00'); }
+function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function addDays(s, n) { const d = D(s); d.setDate(d.getDate() + n); return iso(d); }
+function diff(a, b) { return Math.round((D(b) - D(a)) / 86400000); }
+function fmt(s) { const d = D(s); return d.getDate() + ' ' + MON[d.getMonth()]; }
+function initials(n) { return n.split(/\s+/).map(p => p[0]).join('').slice(0, 2).toUpperCase(); }
+function monday(s) { const d = D(s); const w = (d.getDay() + 6) % 7; d.setDate(d.getDate() - w); return iso(d); }
+
+function seed() {
+  const P = (id, category, title, remark, priority, assignees, u1, u2, l1, l2, override) => ({
+    id, category, title, remark, priority, assignees,
+    uat: { start: u1 || '', due: u2 || '' }, live: { start: l1 || '', due: l2 || '' },
+    override: override || 'auto',
+  });
+  return [
+    P(1,'Payment','Wallet top-up limit revamp','Blocked on BE release 4.12','P0',['Nadia Rahman'],'2026-09-01','2026-09-08','2026-09-12','2026-09-20'),
+    P(2,'Payment','QR merchant refund flow','Needs merchant sandbox accounts','P1',['Wira Kusuma','Farah Idris'],'2026-09-08','2026-09-16','2026-09-22','2026-09-30'),
+    P(3,'Payment','Payment retry backoff','Scope still under review with PM','P2',['Budi Santoso'],'','','',''),
+    P(4,'Platform','SSO session hardening','Security sign-off received','P0',['Mei Ling Tan'],'2026-08-25','2026-09-02','2026-09-04','2026-09-09'),
+    P(5,'Platform','Feature flag console v2','Two QA envs shared with Credit','P1',['Arun Pillai','Nadia Rahman'],'2026-09-09','2026-09-18','2026-09-23','2026-10-02'),
+    P(6,'Platform','Audit log retention','Deferred to next quarter','P3',['Hafiz Omar'],'2026-09-05','2026-09-12','','','skipped'),
+    P(7,'Credit','Loan eligibility rules engine','Regression pack refreshed','P0',['Farah Idris','Siti Aminah'],'2026-09-02','2026-09-09','2026-09-10','2026-09-19'),
+    P(8,'Credit','Repayment reminder scheduler','Waiting for cron access','P2',['Budi Santoso'],'2026-09-15','2026-09-22','2026-09-25','2026-10-01'),
+    P(9,'Insurance','Policy claim intake form','Live window not booked yet','P1',['Siti Aminah'],'2026-09-03','2026-09-09','',''),
+    P(10,'Insurance','Premium calculator audit','Awaiting actuarial spec','P3',['Arun Pillai'],'','','',''),
+    P(11,'AS','Agent shift roster export','CSV format signed off','P2',['Hafiz Omar','Mei Ling Tan'],'2026-09-04','2026-09-10','2026-09-11','2026-09-17'),
+    P(12,'AS','Ticket merge rules','Closed after hotfix verification','P1',['Nadia Rahman'],'2026-08-20','2026-08-27','2026-08-28','2026-09-03','done'),
+    P(13,'MS','Merchant onboarding KYC step','Third-party KYC stub in use','P0',['Wira Kusuma'],'2026-09-07','2026-09-14','2026-09-18','2026-09-25'),
+    P(14,'MS','Settlement report v3','Finance to validate totals','P2',['Farah Idris','Budi Santoso'],'2026-08-28','2026-09-04','2026-09-08','2026-09-14'),
+    P(15,'Foms','Order fulfilment SLA timer','Timer thresholds from ops','P1',['Siti Aminah','Arun Pillai'],'2026-09-10','2026-09-17','2026-09-20','2026-09-26'),
+    P(16,'Foms','Bulk cancel guardrails','Dates pending PM input','P3',['Mei Ling Tan'],'','','',''),
+    P(17,'DP/LS','Courier allocation A/B','Two couriers in the test','P1',['Hafiz Omar'],'2026-09-01','2026-09-07','2026-09-09','2026-09-15'),
+    P(18,'DP/LS','Label reprint throttle','Load test env booked','P2',['Nadia Rahman','Wira Kusuma'],'2026-09-12','2026-09-19','2026-09-22','2026-09-28'),
+    P(19,'DP/LS','Lost parcel claim audit','Verified and closed','P0',['Budi Santoso','Siti Aminah'],'2026-08-18','2026-08-26','2026-08-27','2026-09-02','done'),
+  ];
+}
+
+class Component extends DCLogic {
+  state = {
+    screen: 'overview',
+    role: 'QA',
+    projects: seed(),
+    people: PEOPLE.slice(),
+    cats: CATS.slice(),
+    refDate: TODAY,
+    statFilter: 'all',
+    catFilter: [],
+    search: '',
+    inProgressOnly: false,
+    collapsed: {},
+    editing: null,
+    draft: null,
+    person: 'Nadia Rahman',
+    weekOffset: 0,
+    add: { name: '', priority: 'P1', category: '', catOpen: false, phase: 'UAT', start: '', due: '', assignees: [], query: '', error: '' },
+    added: null,
+  };
+
+  dayCount() { return (Number(this.props.ganttWeeks) || 3) * 7; }
+
+  componentDidMount() {
+    if (this.props.startInProgressOnly) this.setState({ inProgressOnly: true });
+    try {
+      const raw = localStorage.getItem('pmo-tracker-v1');
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s && s.projects) this.setState({ projects: s.projects, people: s.people || PEOPLE.slice(), cats: s.cats || CATS.slice() });
+      }
+    } catch (e) {}
+  }
+
+  persist(projects, people, cats) {
+    try {
+      localStorage.setItem('pmo-tracker-v1', JSON.stringify({
+        projects: projects || this.state.projects,
+        people: people || this.state.people,
+        cats: cats || this.state.cats,
+      }));
+    } catch (e) {}
+  }
+
+  personColor(name) {
+    const i = this.state.people.indexOf(name);
+    return CHART[(i < 0 ? this.state.people.length : i) % CHART.length];
+  }
+
+  statusOf(p) {
+    const ref = this.state.refDate;
+    if (p.override === 'skipped') return 'skipped';
+    if (p.override === 'done') return 'done';
+    const hasU = p.uat.start && p.uat.due, hasL = p.live.start && p.live.due;
+    if (!hasU && !hasL) return 'none';
+    if (p.override === 'live') return 'live';
+    if (p.override === 'uat') return 'uat';
+    if (hasL && diff(p.live.due, ref) > 0) return 'done';
+    if (hasL && diff(p.live.start, ref) >= 0) return 'live';
+    if (hasU && diff(p.uat.due, ref) > 0) return 'waiting';
+    return 'uat';
+  }
+
+  /* ---------- edit draft ---------- */
+  startEdit(id) {
+    if (this.state.editing === id) { this.setState({ editing: null, draft: null }); return; }
+    const p = this.state.projects.find(x => x.id === id);
+    this.setState({
+      editing: id,
+      draft: {
+        name: p.title, priority: p.priority, override: p.override, category: p.category,
+        assignees: p.assignees.slice(), query: '', catOpen: false,
+        uatStart: p.uat.start, uatDue: p.uat.due, liveStart: p.live.start, liveDue: p.live.due,
+      },
+    });
+  }
+  setDraft(patch) { this.setState(s => ({ draft: Object.assign({}, s.draft, patch) })); }
+  saveDraft() {
+    const d = this.state.draft, id = this.state.editing;
+    const people = this.state.people.slice();
+    d.assignees.forEach(n => { if (!people.includes(n)) people.push(n); });
+    const cats = this.state.cats.slice();
+    if (d.category && !cats.includes(d.category)) cats.push(d.category);
+    const projects = this.state.projects.map(p => p.id !== id ? p : Object.assign({}, p, {
+      title: d.name, priority: d.priority, override: d.override, category: d.category || p.category,
+      assignees: d.assignees.slice(),
+      uat: { start: d.uatStart, due: d.uatDue }, live: { start: d.liveStart, due: d.liveDue },
+    }));
+    this.persist(projects, people, cats);
+    this.setState({ projects, people, cats, editing: null, draft: null });
+  }
+
+  draftVals() {
+    const d = this.state.draft;
+    if (!d) return null;
+    const self = this;
+    const q = d.query.trim();
+    const pool = this.state.people.filter(n => !d.assignees.includes(n) && (!q || n.toLowerCase().includes(q.toLowerCase())));
+    const opts = pool.slice(0, 5).map(n => ({ label: n, isCreate: false, color: 'var(--shopee-color-text)', onPick: () => self.setDraft({ assignees: d.assignees.concat([n]), query: '' }) }));
+    if (q && !this.state.people.some(n => n.toLowerCase() === q.toLowerCase())) {
+      opts.unshift({ label: 'Create new person "' + q + '"', isCreate: true, color: 'var(--shopee-color-primary)', onPick: () => self.setDraft({ assignees: d.assignees.concat([q]), query: '' }) });
+    }
+    const cq = (d.category || '').trim().toLowerCase();
+    const cpool = this.state.cats.filter(c => !cq || c.toLowerCase().includes(cq));
+    const copts = cpool.map(c => ({ label: c, isCreate: false, color: 'var(--shopee-color-text)', onPick: () => self.setDraft({ category: c, catOpen: false }) }));
+    if (cq && !this.state.cats.some(c => c.toLowerCase() === cq)) {
+      copts.unshift({ label: 'Create new category "' + d.category.trim() + '"', isCreate: true, color: 'var(--shopee-color-primary)', onPick: () => self.setDraft({ catOpen: false }) });
+    }
+    return {
+      name: d.name, priority: d.priority, override: d.override, category: d.category,
+      query: d.query, uatStart: d.uatStart, uatDue: d.uatDue, liveStart: d.liveStart, liveDue: d.liveDue,
+      assignees: d.assignees.map(n => ({ name: n, color: this.personColor(n), onRemove: () => self.setDraft({ assignees: d.assignees.filter(x => x !== n) }) })),
+      showPeople: opts.length > 0 && q.length > 0,
+      peopleOptions: opts,
+      showCats: !!d.catOpen,
+      catOptions: copts,
+      hint: 'Clearing both phases moves this task to No timeline yet.',
+      onName: e => self.setDraft({ name: e.target.value }),
+      onPriority: e => self.setDraft({ priority: e.target.value }),
+      onOverride: e => self.setDraft({ override: e.target.value }),
+      onCategory: e => self.setDraft({ category: e.target.value, catOpen: true }),
+      onCategoryKey: e => { if (e.key === 'Enter') { e.preventDefault(); self.setDraft({ catOpen: false }); } },
+      onQuery: e => self.setDraft({ query: e.target.value }),
+      onQueryKey: e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const v = d.query.trim();
+        if (!v) return;
+        const hit = self.state.people.find(n => n.toLowerCase() === v.toLowerCase());
+        const name = hit || v;
+        if (!d.assignees.includes(name)) self.setDraft({ assignees: d.assignees.concat([name]), query: '' });
+        else self.setDraft({ query: '' });
+      },
+      onUatStart: e => self.setDraft({ uatStart: e.target.value }),
+      onUatDue: e => self.setDraft({ uatDue: e.target.value }),
+      onLiveStart: e => self.setDraft({ liveStart: e.target.value }),
+      onLiveDue: e => self.setDraft({ liveDue: e.target.value }),
+      onSave: () => self.saveDraft(),
+      onCancel: () => self.setState({ editing: null, draft: null }),
+    };
+  }
+
+  prioRank(p) { return Number(p.priority.slice(1)); }
+
+  rowBase(p) {
+    const self = this;
+    const editing = this.state.editing === p.id;
+    return {
+      id: p.id, title: p.title, remark: p.remark || '—', priority: p.priority, category: p.category,
+      prioBg: PRIO[p.priority].bg, prioFg: PRIO[p.priority].fg,
+      isEditing: editing,
+      editBg: editing ? 'var(--shopee-color-primary-bg)' : 'var(--shopee-color-white)',
+      editBorder: editing ? 'var(--shopee-color-primary)' : 'var(--shopee-color-border)',
+      editFg: editing ? 'var(--shopee-color-primary)' : 'var(--shopee-color-text-secondary)',
+      onEdit: () => self.startEdit(p.id),
+    };
+  }
+
+  /* ---------- person page rows ---------- */
+  personRows() {
+    const list = this.state.projects.filter(p => p.assignees.includes(this.state.person));
+    const out = { uat: [], live: [], done: [], skipped: [], none: [] };
+    const N = this.dayCount();
+    const start = addDays(monday(this.state.refDate), this.state.weekOffset * 7 - 7);
+    const ref = this.state.refDate;
+    const mk = (p, ph) => {
+      const s = p[ph].start, e = p[ph].due;
+      const total = diff(s, e) + 1;
+      let pct = 0;
+      if (diff(ref, s) > 0) pct = 0;
+      else if (diff(e, ref) > 0) pct = 100;
+      else pct = Math.round(((diff(s, ref) + 1) / total) * 100);
+      const l = diff(start, s), r = diff(start, e) + 1;
+      const inW = r > 0 && l < N;
+      const left = Math.max(0, l) * (100 / N);
+      const right = Math.min(N, r) * (100 / N);
+      return Object.assign(this.rowBase(p), {
+        pct, pctLabel: pct + '%', invPct: pct > 0 ? Math.round(10000 / pct) : 100,
+        left, width: Math.max(right - left, 1.5), inWindow: inW, outWindow: !inW,
+        rangeLabel: fmt(s) + ' – ' + fmt(e),
+      });
+    };
+    list.forEach(p => {
+      const st = this.statusOf(p);
+      if (st === 'done') { out.done.push(Object.assign(this.rowBase(p), { rangeLabel: p.live.due ? 'Closed ' + fmt(p.live.due) : 'Closed' })); return; }
+      if (st === 'skipped') { out.skipped.push(Object.assign(this.rowBase(p), { rangeLabel: 'Not planned' })); return; }
+      if (st === 'none') { out.none.push(this.rowBase(p)); return; }
+      if (p.uat.start && p.uat.due) out.uat.push(mk(p, 'uat'));
+      if (p.live.start && p.live.due) out.live.push(mk(p, 'live'));
+    });
+    const sort = a => a.sort((x, y) => Number(x.priority.slice(1)) - Number(y.priority.slice(1)) || x.title.localeCompare(y.title));
+    Object.keys(out).forEach(k => sort(out[k]));
+    return out;
+  }
+
+  /* ---------- add form ---------- */
+  setAdd(patch) { this.setState(s => ({ add: Object.assign({}, s.add, patch) })); }
+  saveAdd() {
+    const a = this.state.add;
+    if (!a.name.trim()) { this.setAdd({ error: 'Task name is required.' }); return; }
+    if (!a.assignees.length) { this.setAdd({ error: 'Assign at least one QA.' }); return; }
+    const id = Math.max.apply(null, this.state.projects.map(p => p.id)) + 1;
+    const phase = a.phase === 'UAT' ? 'uat' : 'live';
+    const p = {
+      id, category: a.category.trim() || 'Payment', title: a.name.trim(), remark: 'Added in app',
+      priority: a.priority, assignees: a.assignees.slice(),
+      uat: { start: '', due: '' }, live: { start: '', due: '' }, override: 'auto',
+    };
+    p[phase] = { start: a.start, due: a.due };
+    const projects = this.state.projects.concat([p]);
+    const people = this.state.people.slice();
+    a.assignees.forEach(n => { if (!people.includes(n)) people.push(n); });
+    const cats = this.state.cats.slice();
+    if (p.category && !cats.includes(p.category)) cats.push(p.category);
+    this.persist(projects, people, cats);
+    this.setState({
+      projects, people, cats,
+      added: { title: p.title, priority: p.priority, phase: a.phase, start: a.start, due: a.due, assignees: p.assignees.slice(), category: p.category },
+      add: { name: '', priority: 'P1', category: '', catOpen: false, phase: 'UAT', start: '', due: '', assignees: [], query: '', error: '' },
+    });
+  }
+
+  addVals() {
+    const a = this.state.add, self = this;
+    const q = a.query.trim();
+    const pool = this.state.people.filter(n => !a.assignees.includes(n) && (!q || n.toLowerCase().includes(q.toLowerCase())));
+    const opts = pool.slice(0, 5).map(n => ({ label: n, isCreate: false, color: 'var(--shopee-color-text)', onPick: () => self.setAdd({ assignees: a.assignees.concat([n]), query: '', error: '' }) }));
+    if (q && !this.state.people.some(n => n.toLowerCase() === q.toLowerCase())) {
+      opts.unshift({ label: 'Create new person "' + q + '"', isCreate: true, color: 'var(--shopee-color-primary)', onPick: () => self.setAdd({ assignees: a.assignees.concat([q]), query: '', error: '' }) });
+    }
+    const cq = a.category.trim().toLowerCase();
+    const copts = this.state.cats.filter(c => !cq || c.toLowerCase().includes(cq))
+      .map(c => ({ label: c, isCreate: false, color: 'var(--shopee-color-text)', onPick: () => self.setAdd({ category: c, catOpen: false }) }));
+    if (cq && !this.state.cats.some(c => c.toLowerCase() === cq)) {
+      copts.unshift({ label: 'Create new category "' + a.category.trim() + '"', isCreate: true, color: 'var(--shopee-color-primary)', onPick: () => self.setAdd({ catOpen: false }) });
+    }
+    return {
+      name: a.name, priority: a.priority, category: a.category, phase: a.phase, start: a.start, due: a.due, query: a.query, error: a.error,
+      startLabel: a.phase + ' start date', dueLabel: a.phase + ' due date',
+      assignees: a.assignees.map(n => ({ name: n, color: this.personColor(n), onRemove: () => self.setAdd({ assignees: a.assignees.filter(x => x !== n) }) })),
+      showPeople: q.length > 0 && opts.length > 0,
+      peopleOptions: opts,
+      showCats: !!a.catOpen,
+      catOptions: copts,
+      saveBg: 'var(--shopee-color-primary)', saveCursor: 'pointer',
+      onName: e => self.setAdd({ name: e.target.value, error: '' }),
+      onPriority: e => self.setAdd({ priority: e.target.value }),
+      onCategory: e => self.setAdd({ category: e.target.value, catOpen: true }),
+      onCategoryKey: e => { if (e.key === 'Enter') { e.preventDefault(); self.setAdd({ catOpen: false }); } },
+      onPhase: e => self.setAdd({ phase: e.target.value }),
+      onStart: e => self.setAdd({ start: e.target.value }),
+      onDue: e => self.setAdd({ due: e.target.value }),
+      onQuery: e => self.setAdd({ query: e.target.value }),
+      onQueryKey: e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const v = a.query.trim();
+        if (!v) return;
+        const hit = self.state.people.find(n => n.toLowerCase() === v.toLowerCase());
+        const name = hit || v;
+        self.setAdd({ assignees: a.assignees.includes(name) ? a.assignees : a.assignees.concat([name]), query: '', error: '' });
+      },
+      onSave: () => self.saveAdd(),
+      onReset: () => self.setAdd({ name: '', priority: 'P1', category: '', phase: 'UAT', start: '', due: '', assignees: [], query: '', error: '' }),
+    };
+  }
+
+  renderVals() {
+    const self = this, s = this.state;
+    const nav = [
+      { key: 'overview', label: 'Project Overview', d: 'M2.5 2a.5.5 0 0 1 .5.5V14h11.5a.5.5 0 0 1 0 1h-12a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5m11.818 2.614a.5.5 0 0 1 .119.63l-.05.074-3.6 4.375a.5.5 0 0 1-.661.1l-.074-.06-1.411-1.37-3.255 3.955a.5.5 0 0 1-.823-.561l.05-.075 3.6-4.375a.5.5 0 0 1 .661-.1l.075.06 1.41 1.37 3.255-3.955a.5.5 0 0 1 .704-.068' },
+      { key: 'person', label: 'Track by Person', d: 'M8 1a4 4 0 0 1 2.126 7.389A6 6 0 0 1 14 14v.5a.5.5 0 0 1-1 0V14a5 5 0 0 0-10 0v.5a.5.5 0 0 1-1 0V14a6 6 0 0 1 3.874-5.612A4 4 0 0 1 8 1m0 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6' },
+      { key: 'add', label: 'Add New Task', d: 'M7.982 1a.5.5 0 0 1 .5.5L8.48 7.497l6.019.001a.5.5 0 0 1 0 1l-6.019-.001V14.5a.5.5 0 0 1-1 0V8.497L1.5 8.498a.5.5 0 0 1 0-1l5.981-.001V1.5a.5.5 0 0 1 .5-.5' },
+    ].map(n => ({
+      label: n.label, d: n.d,
+      bg: s.screen === n.key ? 'var(--shopee-color-primary-bg)' : 'transparent',
+      fg: s.screen === n.key ? 'var(--shopee-color-primary)' : 'var(--shopee-color-text-secondary)',
+      bar: s.screen === n.key ? 'var(--shopee-color-primary)' : 'transparent',
+      weight: s.screen === n.key ? 500 : 400,
+      onClick: () => self.setState({ screen: n.key, editing: null, draft: null }),
+    }));
+
+    /* stats over all projects */
+    const counts = { all: s.projects.length, uat: 0, waiting: 0, live: 0, done: 0, none: 0, skipped: 0 };
+    s.projects.forEach(p => { counts[this.statusOf(p)]++; });
+    const stats = STAT_KEYS.map(k => {
+      const active = s.statFilter === k;
+      const meta = k === 'all' ? null : STATUS[k];
+      return {
+        label: STAT_LABELS[k], count: counts[k],
+        dot: meta ? meta.dot : 'var(--shopee-color-primary)',
+        dotBorder: meta ? meta.dotBorder : 'none',
+        bg: active ? 'var(--shopee-color-primary-bg)' : 'var(--shopee-color-white)',
+        border: active ? 'var(--shopee-color-primary)' : 'var(--shopee-color-border)',
+        labelColor: active ? 'var(--shopee-color-primary)' : 'var(--shopee-color-text-secondary)',
+        onClick: () => self.setState({ statFilter: k }),
+      };
+    });
+
+    /* overview filtering */
+    const q = s.search.trim().toLowerCase();
+    const filtered = s.projects.filter(p => {
+      const st = this.statusOf(p);
+      if (s.statFilter !== 'all' && st !== s.statFilter) return false;
+      if (s.catFilter.length && !s.catFilter.includes(p.category)) return false;
+      if (s.inProgressOnly && (st === 'done' || st === 'skipped' || st === 'none')) return false;
+      if (q && !(p.title.toLowerCase().includes(q) || p.assignees.join(' ').toLowerCase().includes(q))) return false;
+      return true;
+    });
+
+    const categories = s.cats.map(name => {
+      const rows = filtered.filter(p => p.category === name)
+        .sort((a, b) => this.prioRank(a) - this.prioRank(b) || a.title.localeCompare(b.title));
+      if (!rows.length) return null;
+      const dc = {};
+      rows.forEach(p => { const k = this.statusOf(p); dc[k] = (dc[k] || 0) + 1; });
+      const dist = Object.keys(dc).map(k => ({ w: (dc[k] / rows.length) * 100, color: STATUS[k].seg, title: STATUS[k].label + ': ' + dc[k] }));
+      const open = !s.collapsed[name];
+      return {
+        name, open, countLabel: rows.length + (rows.length === 1 ? ' project' : ' projects'),
+        chevron: open ? 'm7.573 6.401-2.42 2.268A.625.625 0 0 0 5.58 9.75h4.84a.625.625 0 0 0 .427-1.08L8.427 6.4a.625.625 0 0 0-.854 0' : 'M7.573 9.35 5.153 7.08A.625.625 0 0 1 5.58 6h4.84a.625.625 0 0 1 .427 1.081l-2.42 2.268a.625.625 0 0 1-.854 0',
+        dist,
+        onToggle: () => self.setState(st => ({ collapsed: Object.assign({}, st.collapsed, { [name]: !st.collapsed[name] }) })),
+        rows: rows.map(p => {
+          const st = this.statusOf(p);
+          const m = STATUS[st];
+          const hasU = p.uat.start && p.uat.due, hasL = p.live.start && p.live.due;
+          return Object.assign(this.rowBase(p), {
+            avatars: p.assignees.map(n => ({ name: n, initials: initials(n), color: this.personColor(n) })),
+            uatLabel: hasU ? fmt(p.uat.start) + ' – ' + fmt(p.uat.due) : 'Not set',
+            liveLabel: hasL ? fmt(p.live.start) + ' – ' + fmt(p.live.due) : 'Not set',
+            uatBg: hasU ? 'var(--shopee-color-info-bg)' : 'var(--shopee-color-fill-tertiary)',
+            uatFg: hasU ? '#1B57AB' : 'var(--shopee-color-text-tertiary)',
+            liveBg: hasL ? 'var(--shopee-tag-success-bg)' : 'var(--shopee-color-fill-tertiary)',
+            liveFg: hasL ? '#1E7F48' : 'var(--shopee-color-text-tertiary)',
+            statusLabel: m.label, statusBg: m.bg, statusBorder: m.border, statusDot: m.dot, statusDotBorder: m.dotBorder,
+          });
+        }),
+      };
+    }).filter(Boolean);
+
+    const catChips = [{ label: 'All categories', key: null }].concat(s.cats.map(c => ({ label: c, key: c }))).map(c => {
+      const active = c.key === null ? s.catFilter.length === 0 : s.catFilter.includes(c.key);
+      return {
+        label: c.label,
+        bg: active ? 'var(--shopee-color-primary-bg)' : 'var(--shopee-color-white)',
+        fg: active ? 'var(--shopee-color-primary)' : 'var(--shopee-color-text-secondary)',
+        border: active ? 'var(--shopee-color-primary)' : 'var(--shopee-color-border)',
+        onClick: () => self.setState(st => c.key === null
+          ? { catFilter: [] }
+          : { catFilter: st.catFilter.includes(c.key) ? st.catFilter.filter(x => x !== c.key) : st.catFilter.concat([c.key]) }),
+      };
+    });
+
+    /* person page */
+    const pr = this.personRows();
+    const N = this.dayCount(), W = N / 7;
+    const winStart = addDays(monday(s.refDate), s.weekOffset * 7 - 7);
+    const days = [];
+    for (let i = 0; i < N; i++) {
+      const ds = addDays(winStart, i);
+      const dt = D(ds);
+      const isRef = ds === s.refDate;
+      const we = dt.getDay() === 0 || dt.getDay() === 6;
+      days.push({
+        num: dt.getDate(), dow: DOW[dt.getDay()],
+        bg: isRef ? 'var(--shopee-color-primary-bg)' : (we ? 'var(--shopee-color-fill-quaternary)' : 'transparent'),
+        fg: isRef ? 'var(--shopee-color-primary)' : (we ? 'var(--shopee-color-text-quaternary)' : 'var(--shopee-color-text-secondary)'),
+        weight: isRef ? 500 : 400,
+      });
+    }
+    const weeks = Array.from({ length: W }, (_, i) => i).map(w => {
+      const a = addDays(winStart, w * 7), b = addDays(winStart, w * 7 + 6);
+      return { label: fmt(a) + ' – ' + fmt(b) };
+    });
+    const gantt = [
+      { key: 'uat', title: 'UAT phase', color: 'var(--shopee-color-info)', tint: 'var(--shopee-color-info-bg)', rows: pr.uat, emptyTitle: 'No UAT tasks for ' + s.person, emptyBody: 'UAT date ranges assigned to this person will appear on this grid.' },
+      { key: 'live', title: 'Live phase', color: 'var(--shopee-color-success)', tint: 'var(--shopee-tag-success-bg)', rows: pr.live, emptyTitle: 'No Live tasks for ' + s.person, emptyBody: 'Once a task has Live dates it shows up here with its own progress bar.' },
+    ].map(sec => Object.assign(sec, {
+      hasRows: sec.rows.length > 0, empty: sec.rows.length === 0,
+      countLabel: sec.rows.length + (sec.rows.length === 1 ? ' task' : ' tasks'),
+    }));
+
+    const closedLists = [
+      { title: 'Done', color: 'var(--shopee-color-text-tertiary)', rows: pr.done, textColor: 'var(--shopee-color-text-secondary)', deco: 'none', emptyTitle: 'Nothing marked Done', emptyBody: 'Set a task status to Done and it moves here, out of the Gantt.' },
+      { title: 'Skipped', color: 'var(--shopee-color-error)', rows: pr.skipped, textColor: 'var(--shopee-color-text-secondary)', deco: 'line-through', emptyTitle: 'Nothing skipped', emptyBody: 'Tasks manually marked Skipped are listed here.' },
+    ].map(sec => Object.assign(sec, {
+      hasRows: sec.rows.length > 0, empty: sec.rows.length === 0,
+      countLabel: sec.rows.length + (sec.rows.length === 1 ? ' task' : ' tasks'),
+    }));
+
+    const added = s.added ? {
+      title: s.added.title,
+      summary: s.added.category + ' · ' + s.added.priority + ' · ' + s.added.phase + ' · ' +
+        (s.added.start && s.added.due ? fmt(s.added.start) + ' – ' + fmt(s.added.due) : 'no timeline yet'),
+      links: s.added.assignees.map(n => ({
+        label: 'Track by Person — ' + n, initials: initials(n), color: this.personColor(n),
+        onClick: () => self.setState({ screen: 'person', person: n, added: null, weekOffset: 0 }),
+      })),
+    } : null;
+
+    const inProg = s.inProgressOnly;
+    return {
+      navItems: nav, role: s.role, onRole: e => self.setState({ role: e.target.value }),
+      isOverview: s.screen === 'overview', isPerson: s.screen === 'person', isAdd: s.screen === 'add',
+      refDate: s.refDate, onRefDate: e => self.setState({ refDate: e.target.value || TODAY }),
+      overviewSub: filtered.length + ' of ' + s.projects.length + ' projects shown · status measured against ' + fmt(s.refDate) + ' · Google Sheet stays the source of truth',
+      stats, catChips, categories,
+      hasResults: categories.length > 0, noResults: categories.length === 0,
+      search: s.search, onSearch: e => self.setState({ search: e.target.value }),
+      onToggleProgress: () => self.setState({ inProgressOnly: !inProg }),
+      progressBg: inProg ? 'var(--shopee-color-primary-bg)' : 'var(--shopee-color-white)',
+      progressFg: inProg ? 'var(--shopee-color-primary)' : 'var(--shopee-color-text-secondary)',
+      progressBorder: inProg ? 'var(--shopee-color-primary)' : 'var(--shopee-color-border)',
+      progressTrack: inProg ? 'var(--shopee-color-primary)' : 'var(--shopee-color-fill)',
+      progressKnob: inProg ? '14px' : '2px',
+      onClearFilters: () => self.setState({ statFilter: 'all', catFilter: [], search: '', inProgressOnly: false }),
+      draft: this.draftVals(),
+      person: s.person, peopleNames: s.people.map(n => ({ name: n })),
+      onPerson: e => self.setState({ person: e.target.value, editing: null, draft: null, weekOffset: 0 }),
+      personSub: 'Progress for ' + s.person + ' as of ' + fmt(s.refDate),
+      onPrevDay: () => self.setState({ refDate: addDays(s.refDate, -1) }),
+      onNextDay: () => self.setState({ refDate: addDays(s.refDate, 1) }),
+      onToday: () => self.setState({ refDate: TODAY, weekOffset: 0 }),
+      onPrevWeek: () => self.setState({ weekOffset: s.weekOffset - 1 }),
+      onNextWeek: () => self.setState({ weekOffset: s.weekOffset + 1 }),
+      windowLabel: fmt(winStart) + ' – ' + fmt(addDays(winStart, N - 1)),
+      dayCols: 'repeat(' + N + ',minmax(0,1fr))',
+      weekCols: 'repeat(' + W + ',minmax(0,1fr))',
+      stripeBg: 'repeating-linear-gradient(to right, transparent 0, transparent calc(100% / ' + N + ' - 1px), #EEEEEE calc(100% / ' + N + ' - 1px), #EEEEEE calc(100% / ' + N + '))',
+      showRole: this.props.showRoleSwitcher !== false,
+      days, weeks, gantt, closedLists,
+      noTimeline: pr.none, hasNoTimeline: pr.none.length > 0, noNoTimeline: pr.none.length === 0,
+      noTimelineCount: pr.none.length + (pr.none.length === 1 ? ' task' : ' tasks'),
+      add: this.addVals(), showAddForm: !s.added, showAdded: !!s.added, added,
+      onAddAnother: () => self.setState({ added: null }),
+      onGoOverview: () => self.setState({ screen: 'overview', added: null }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="background:var(--shopee-color-bg-module);border:1px solid var(--shopee-color-border);border-radius:4px;padding:16px;display:grid;gap:16px">
+  <div style="display:grid;grid-template-columns:minmax(0,2fr) 120px 170px;gap:12px;align-items:end">
+    <label style="display:grid;gap:4px">
+      <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Task name</span>
+      <input type="text" value="{{ e.name }}" onChange="{{ e.onName }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white);outline:none" />
+    </label>
+    <label style="display:grid;gap:4px">
+      <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Priority</span>
+      <select value="{{ e.priority }}" onChange="{{ e.onPriority }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)">
+        <option value="P0">P0</option>
+        <option value="P1">P1</option>
+        <option value="P2">P2</option>
+        <option value="P3">P3</option>
+      </select>
+    </label>
+    <label style="display:grid;gap:4px">
+      <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Status override</span>
+      <select value="{{ e.override }}" onChange="{{ e.onOverride }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)">
+        <option value="auto">Auto (from dates)</option>
+        <option value="uat">In UAT</option>
+        <option value="live">Live now</option>
+        <option value="done">Done</option>
+        <option value="skipped">Skipped</option>
+      </select>
+    </label>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start">
+    <div style="display:grid;gap:4px">
+      <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">QA assigned</span>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:32px;padding:4px 8px;background:var(--shopee-color-white);border:1px solid var(--shopee-color-border);border-radius:4px">
+        <sc-for list="{{ e.assignees }}" as="a" hint-placeholder-count="2">
+          <span style="display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 4px 0 6px;border-radius:4px;background:var(--shopee-color-bg-module);border:1px solid var(--shopee-color-border);font-size:12px;line-height:16px;color:var(--shopee-color-text)">
+            <span style="width:8px;height:8px;border-radius:50%;background:{{ a.color }}"></span>
+            {{ a.name }}
+            <button type="button" onClick="{{ a.onRemove }}" style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:none;background:transparent;color:var(--shopee-color-text-tertiary);cursor:pointer;padding:0" style-hover="color:var(--shopee-color-text)">
+              <svg viewBox="0 0 16 16" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M13.646 2.146a.5.5 0 1 1 .707.708L9.208 8l5.46 5.46a.5.5 0 0 1-.707.707L8.5 8.707l-5.46 5.46a.5.5 0 0 1-.707-.707L7.793 8 2.646 2.854a.5.5 0 1 1 .708-.708L8.5 7.293z"></path></svg>
+            </button>
+          </span>
+        </sc-for>
+        <input type="text" value="{{ e.query }}" onChange="{{ e.onQuery }}" onKeyDown="{{ e.onQueryKey }}" placeholder="Type to search or add a name" style="flex:1 1 140px;min-width:120px;height:24px;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:transparent" />
+      </div>
+      <sc-if value="{{ e.showPeople }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid var(--shopee-color-border);border-radius:4px;background:var(--shopee-color-white);box-shadow:var(--shopee-shadow-dropdown);overflow:hidden">
+          <sc-for list="{{ e.peopleOptions }}" as="o" hint-placeholder-count="3">
+            <button type="button" onClick="{{ o.onPick }}" style="display:flex;width:100%;align-items:center;gap:8px;height:32px;padding:0 8px;border:none;background:transparent;font-family:inherit;font-size:14px;text-align:left;cursor:pointer;color:{{ o.color }}" style-hover="background:var(--shopee-color-hover)">
+              <sc-if value="{{ o.isCreate }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M7.982 1a.5.5 0 0 1 .5.5L8.48 7.497l6.019.001a.5.5 0 0 1 0 1l-6.019-.001V14.5a.5.5 0 0 1-1 0V8.497L1.5 8.498a.5.5 0 0 1 0-1l5.981-.001V1.5a.5.5 0 0 1 .5-.5"></path></svg>
+              </sc-if>
+              {{ o.label }}
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:grid;gap:4px">
+      <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-secondary)">Category</span>
+      <input type="text" value="{{ e.category }}" onChange="{{ e.onCategory }}" onKeyDown="{{ e.onCategoryKey }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white);outline:none" />
+      <sc-if value="{{ e.showCats }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid var(--shopee-color-border);border-radius:4px;background:var(--shopee-color-white);box-shadow:var(--shopee-shadow-dropdown);overflow:hidden">
+          <sc-for list="{{ e.catOptions }}" as="o" hint-placeholder-count="3">
+            <button type="button" onClick="{{ o.onPick }}" style="display:flex;width:100%;align-items:center;gap:8px;height:32px;padding:0 8px;border:none;background:transparent;font-family:inherit;font-size:14px;text-align:left;cursor:pointer;color:{{ o.color }}" style-hover="background:var(--shopee-color-hover)">
+              <sc-if value="{{ o.isCreate }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M7.982 1a.5.5 0 0 1 .5.5L8.48 7.497l6.019.001a.5.5 0 0 1 0 1l-6.019-.001V14.5a.5.5 0 0 1-1 0V8.497L1.5 8.498a.5.5 0 0 1 0-1l5.981-.001V1.5a.5.5 0 0 1 .5-.5"></path></svg>
+              </sc-if>
+              {{ o.label }}
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+    <div style="background:var(--shopee-color-white);border:1px solid var(--shopee-color-border);border-radius:4px;padding:12px;display:grid;gap:8px">
+      <span style="font-size:12px;line-height:16px;font-weight:500;color:var(--shopee-color-text)">UAT phase</span>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+        <label style="display:grid;gap:4px">
+          <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Start</span>
+          <input type="date" value="{{ e.uatStart }}" onChange="{{ e.onUatStart }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+        </label>
+        <label style="display:grid;gap:4px">
+          <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Due</span>
+          <input type="date" value="{{ e.uatDue }}" onChange="{{ e.onUatDue }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+        </label>
+      </div>
+    </div>
+    <div style="background:var(--shopee-color-white);border:1px solid var(--shopee-color-border);border-radius:4px;padding:12px;display:grid;gap:8px">
+      <span style="font-size:12px;line-height:16px;font-weight:500;color:var(--shopee-color-text)">Live phase</span>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+        <label style="display:grid;gap:4px">
+          <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Start</span>
+          <input type="date" value="{{ e.liveStart }}" onChange="{{ e.onLiveStart }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+        </label>
+        <label style="display:grid;gap:4px">
+          <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">Due</span>
+          <input type="date" value="{{ e.liveDue }}" onChange="{{ e.onLiveDue }}" style="height:32px;padding:0 8px;border:1px solid var(--shopee-color-border);border-radius:4px;font-family:inherit;font-size:14px;color:var(--shopee-color-text);background:var(--shopee-color-white)" />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:16px">
+    <button type="button" onClick="{{ e.onSave }}" style="height:32px;padding:0 16px;border:none;border-radius:4px;background:var(--shopee-color-primary);color:var(--shopee-color-white);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer" style-hover="background:var(--shopee-color-primary-hover)">Save changes</button>
+    <button type="button" onClick="{{ e.onCancel }}" style="height:32px;padding:0 16px;border:1px solid var(--shopee-color-border);border-radius:4px;background:var(--shopee-color-white);color:var(--shopee-color-text-secondary);font-family:inherit;font-size:14px;cursor:pointer" style-hover="background:var(--shopee-color-hover)">Cancel</button>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;line-height:16px;color:var(--shopee-color-text-tertiary)">{{ e.hint }}</span>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:860,&quot;height&quot;:420},&quot;e&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}"></script>
+</body>
+</html>

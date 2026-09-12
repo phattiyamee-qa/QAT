@@ -1,0 +1,229 @@
+/* ──────────────────────────────────────────────────────────────────
+ * Shopee Seller Centre — Tokens
+ * Source: /tokens/{seed,map,alias,css-vars}.ts
+ *
+ * One brand color: Shopee orange #EE4D2D.
+ * Used sparingly on neutral white surfaces (≥95% neutral, <5% orange).
+ *
+ * Reference colors ONLY via --shopee-* — zero hex hardcoding in components.
+ * Spacing follows strict 8px grid: 4 · 8 · 12 · 16 · 20 · 24 · 32 · 48.
+ * ────────────────────────────────────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+:root {
+  /* ─── Brand ─── */
+  --shopee-color-primary:         #EE4D2D;
+  --shopee-color-primary-hover:   #F26644;
+  --shopee-color-primary-active:  #D43D20;
+  --shopee-color-primary-bg:      #FEF6F5;
+  --shopee-color-primary-bg-hover:#FCE5E0;
+  --shopee-color-primary-border:  #FAD4CC;
+  --shopee-color-primary-text-active: #B83218;
+
+  /* ─── Text (4 step) ─── */
+  --shopee-color-text:            #333333;
+  --shopee-color-text-secondary:  #666666;
+  --shopee-color-text-tertiary:   #999999;
+  --shopee-color-text-quaternary: #B7B7B7;
+
+  /* ─── Surfaces ─── */
+  --shopee-color-white:           #FFFFFF;
+  --shopee-color-bg-container:    #FFFFFF;
+  --shopee-color-bg-elevated:     #FFFFFF;
+  --shopee-color-bg-layout:       #F6F6F6;
+  --shopee-color-bg-module:       #FAFAFA;
+  --shopee-color-bg-mask:         rgba(0,0,0,0.50);
+  --shopee-color-bg-spotlight:    rgba(0,0,0,0.85);
+
+  /* ─── Borders ─── */
+  --shopee-color-border:           #E5E5E5;
+  --shopee-color-border-secondary: #EEEEEE;
+  --shopee-color-split:            #DCDEE1;
+  --shopee-color-border-upload:    #D8D8D8;
+
+  /* ─── Fills (transparent black) ─── */
+  --shopee-color-fill:             rgba(0,0,0,0.15);
+  --shopee-color-fill-secondary:   rgba(0,0,0,0.08);
+  --shopee-color-fill-tertiary:    rgba(0,0,0,0.04);
+  --shopee-color-fill-quaternary:  rgba(0,0,0,0.02);
+  --shopee-color-hover:            rgba(0,0,0,0.04);
+  --shopee-color-pressed:          rgba(0,0,0,0.08);
+
+  /* ─── Semantic — 5-color rotation ─── */
+  --shopee-color-info:        #2673DD;
+  --shopee-color-info-bg:     #E5EEFB;
+  --shopee-color-info-border-strong: #4EABF5;
+  --shopee-color-success:     #30B566;
+  --shopee-color-success-bg:  #F1FCF4;
+  --shopee-color-success-icon:#55CC77;
+  --shopee-color-warning:     #FF831D;
+  --shopee-color-warning-bg:  #FFFAED;
+  --shopee-color-warning-bg-strong: #FFF6E1;
+  --shopee-color-warning-icon:#FFBF00;
+  --shopee-color-error:       #FF4742;
+  --shopee-color-error-bg:    #FFE9E8;
+  --shopee-color-error-bg-strong: #FFF1F0;
+  --shopee-color-metric-negative: #EE2C4A;
+
+  /* ─── Auxiliary (used in non-Shopee-orange surfaces) ─── */
+  --shopee-color-orange:      #FF831D;
+  --shopee-color-orange-bg:   #FEECE1;
+  --shopee-color-teal:        #1BAF9D;
+  --shopee-color-teal-bg:     #E3F5F3;
+
+  /* ─── Tag fills ─── */
+  --shopee-tag-success-bg:    #EBF9EF;
+  --shopee-tag-success-text:  #55CC77;
+  --shopee-tag-warning-bg:    #FFF7E0;
+  --shopee-tag-warning-text:  #EDA500;
+  --shopee-tag-expired-bg:    rgba(153,153,153,0.12);
+
+  /* ─── Spacing (strict 8-grid) ─── */
+  --shopee-padding-xxs: 4px;
+  --shopee-padding-xs:  8px;
+  --shopee-padding-sm:  12px;
+  --shopee-padding:     16px;
+  --shopee-padding-md:  20px;
+  --shopee-padding-lg:  24px;
+  --shopee-padding-xl:  32px;
+  --shopee-padding-xxl: 48px;
+
+  /* ─── Radii ─── */
+  --shopee-border-radius-xs: 2px;
+  --shopee-border-radius-sm: 4px;  /* tags, buttons, inputs */
+  --shopee-border-radius:    4px;  /* default */
+  --shopee-border-radius-lg: 8px;  /* cards, modals */
+
+  /* ─── Shadows (never combine) ─── */
+  --shopee-shadow-sm:        0 2px 8px rgba(0,0,0,0.08);
+  --shopee-shadow-md:        0 4px 16px rgba(0,0,0,0.10);
+  --shopee-shadow-lg:        0 8px 24px rgba(0,0,0,0.12);
+  --shopee-shadow-float:     0 12px 40px 0 rgba(0,0,0,0.16);
+  --shopee-shadow-dropdown:  0 0 16px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.06);
+
+  /* ─── Control heights ─── */
+  --shopee-control-height-sm: 24px;
+  --shopee-control-height:    32px;
+  --shopee-control-height-lg: 40px;
+
+  /* ─── Typography ─── */
+  --shopee-font-family: 'Roboto', 'PingFang SC', -apple-system, BlinkMacSystemFont,
+                        'Segoe UI', Helvetica, Arial, sans-serif;
+  --shopee-font-family-code: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  --shopee-font-size-sm: 12px;
+  --shopee-font-size:    14px;
+  --shopee-font-size-lg: 16px;
+  --shopee-font-size-xl: 18px;
+
+  --shopee-font-weight-regular: 400;
+  --shopee-font-weight-strong:  500;
+
+  /* ─── Chart palette (10-color rotation) ─── */
+  --shopee-chart-1:  #367FE3;
+  --shopee-chart-2:  #FB734B;
+  --shopee-chart-3:  #5D7092;
+  --shopee-chart-4:  #23AAAB;
+  --shopee-chart-5:  #58B7F1;
+  --shopee-chart-6:  #945FB9;
+  --shopee-chart-7:  #F6BD16;
+  --shopee-chart-8:  #76C99E;
+  --shopee-chart-9:  #C39167;
+  --shopee-chart-10: #DE5991;
+
+  /* ─── Layout ─── */
+  --shopee-topnav-height: 56px;
+  --shopee-sidenav-width: 222px;
+  --shopee-rightrail-width: 312px;
+  --shopee-page-min-width: 1280px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+ * Type system — semantic helpers
+ * Page title 20/28 · Card title 18/26 · Section/metric 16/24 · Body 14/20 · Caption 12/16
+ * weight 500 max in chrome; never 700+ except marketing hero
+ * letter-spacing always 0
+ * ────────────────────────────────────────────────────────────────── */
+
+.t-page-title {
+  font-family: var(--shopee-font-family);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--shopee-color-text);
+}
+.t-page-title-xl {
+  font-family: var(--shopee-font-family);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--shopee-color-text);
+}
+.t-card-title {
+  font-family: var(--shopee-font-family);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--shopee-color-text);
+}
+.t-section-title {
+  font-family: var(--shopee-font-family);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--shopee-color-text);
+}
+.t-metric {
+  font-family: var(--shopee-font-family);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  color: var(--shopee-color-text);
+}
+.t-body-strong {
+  font-family: var(--shopee-font-family);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--shopee-color-text);
+}
+.t-body {
+  font-family: var(--shopee-font-family);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: var(--shopee-color-text);
+}
+.t-caption {
+  font-family: var(--shopee-font-family);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  color: var(--shopee-color-text-secondary);
+}
+.t-caption-strong {
+  font-family: var(--shopee-font-family);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--shopee-color-text);
+}
+.t-mono {
+  font-family: var(--shopee-font-family-code);
+  font-size: 13px;
+}
+
+/* Base */
+html, body {
+  font-family: var(--shopee-font-family);
+  font-size: var(--shopee-font-size);
+  line-height: 1.4286;
+  color: var(--shopee-color-text);
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+}
