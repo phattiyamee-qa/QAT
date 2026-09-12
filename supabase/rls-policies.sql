@@ -38,7 +38,7 @@ $$;
 -- Helper: does the calling user hold a given role in the `role` table?
 -- v1 only ever populates 'QA', but this is written generically so
 -- PM/MANAGER/ADMIN can be added later without touching any policy.
-create or replace function has_role(check_role user_role)
+create or replace function has_role(check_role "UserRole")
 returns boolean
 language sql
 security definer
