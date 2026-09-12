@@ -1,14 +1,18 @@
-// DRAFT — translated from docs/data-model.md. Not validated against a running
-// Supabase project yet. Claude Code should review this against build-sequence
-// step 2 before running any migration.
+// Reviewed against a real Supabase project in build-sequence step 2.
+// Person.id stays app-generated (cuid) rather than Supabase Auth's uid,
+// because a person can exist purely as a plain-text name from a sheet sync
+// or an Add New Task assignee who never logs in. Person.authUserId links to
+// auth.users.id only once/if that person actually authenticates; RLS
+// policies join through authUserId, not id. See docs/data-model.md.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum CreatedFrom {
@@ -92,10 +96,15 @@ model Assignment {
 }
 
 model Person {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?  @unique
-  googleSub String?  @unique @map("google_sub")
+  id          String   @id @default(cuid())
+  name        String
+  email       String?  @unique
+  googleSub   String?  @unique @map("google_sub")
+  // auth.users.id (Supabase Auth) once this person has actually logged in.
+  // Null for sheet-synced / manually-typed assignees who never authenticate.
+  // Matching a sheet-derived Person to a real login is by exact email/name
+  // equality for v1 — automatic fuzzy matching is out of scope (brief §7).
+  authUserId  String?  @unique @db.Uuid @map("auth_user_id")
 
   assignments Assignment[]
   roles       Role[]
@@ -116,7 +125,7 @@ model StatusOverride {
   projectId String         @id @map("project_id")
   project   Project        @relation(fields: [projectId], references: [id])
   status    OverrideStatus
-  setBy     String?        @map("set_by")
+  setBy     String?        @map("set_by") // person.id of whoever set it
   setAt     DateTime       @default(now()) @map("set_at")
 
   @@map("status_override")

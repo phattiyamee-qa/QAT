@@ -27,10 +27,11 @@ Source: `PROJECT_BRIEF.md` Section 4. Not a final schema — see `prisma/schema.
 - role_on_project: `'QA' | 'PM'`
 
 **person**
-- id
+- id (app-generated, cuid) — deliberately *not* Supabase Auth's `auth.users.id`, because a person can exist purely as a plain-text name synced from the Sheet or typed into Add New Task, and may never log in.
 - name
 - email
-- google_sub (from OAuth)
+- google_sub (from OAuth, kept for reference)
+- auth_user_id (nullable, uuid) — set to `auth.users.id` once/if this person actually authenticates via Google OAuth. RLS policies join through this column, not `id`. Matching a sheet-derived person to a real login is exact email/name equality for v1; automatic/fuzzy matching is out of scope (brief §7).
 
 **role**
 - person_id
