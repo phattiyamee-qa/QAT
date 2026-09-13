@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ProjectOverviewProject } from "@/lib/queries";
 import { computeStatusKey, isInProgress, statCategory, statusVisual, type StatCategory } from "@/lib/status";
+import { priorityStyle } from "@/lib/priority";
 import { EditRow } from "@/app/components/EditRow";
 
 const AVATAR_PALETTE = [
@@ -35,13 +36,6 @@ function fmtRange(start: Date | null | undefined, end: Date | null | undefined) 
   if (start && end) return `${f(start)} – ${f(end)}`;
   return f((start ?? end)!);
 }
-
-const PRIORITY_STYLE: Record<string, { bg: string; fg: string }> = {
-  P0: { bg: "var(--shopee-color-error-bg)", fg: "var(--shopee-color-error)" },
-  P1: { bg: "var(--shopee-color-warning-bg-strong)", fg: "var(--shopee-color-warning-icon)" },
-  P2: { bg: "var(--shopee-color-info-bg)", fg: "var(--shopee-color-info)" },
-  P3: { bg: "var(--shopee-color-fill-tertiary)", fg: "var(--shopee-color-text-secondary)" },
-};
 
 const STAT_CARDS: { key: StatCategory; label: string }[] = [
   { key: "all", label: "All" },
@@ -440,7 +434,7 @@ export function ProjectOverview({ projects }: { projects: ProjectOverviewProject
                       const uat = project.periods.find((p) => p.phase === "UAT");
                       const live = project.periods.find((p) => p.phase === "LIVE");
                       const qaAssignees = project.assignments.filter((a) => a.roleOnProject === "QA");
-                      const prio = PRIORITY_STYLE[project.priority ?? ""] ?? PRIORITY_STYLE.P3;
+                      const prio = priorityStyle(project.priority);
                       const visual = statusVisual(statusKey);
                       const isEditing = editingId === project.id;
 
